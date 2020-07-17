@@ -7,28 +7,33 @@ const crypto = require('crypto')
 const server = http.createServer((request, response) => {
 
 response.setHeader("Content-Type", "text/html; charset=utf-8;");
-  const body = [];
+  let body = '';
   request.on('data', (chunk) => {
-    body+=chunk;
+    body += chunk;
   }).on('end', () => {
-    console.log(qs.parse(body))
+    let value = JSON.parse(body);
+    let result = value.pasword
+    const key = crypto.pbkdf2Sync('supper-secure-password', 'salt', 100000, 64, 'sha512');
+    if(crypto.pbkdf2Sync(result, 'salt', 100000, 64, 'sha512') === key) {
+      console.log('isValid: true')
+    }
   })
 
   if(request.url === "/dir_name"){
-    console.log(__dirname);
     response.write("<h2>Dir name</h2>");
+    response.write(__dirname);
   }
   else if(request.url == "/file_name"){
-    console.log(__filename);
     response.write("<h2>File name</h2>");
+    response.write(__filename);
   }
   else if(request.url == "/cpus"){
-    console.log(os.cpus());
     response.write("<h2>Cpus</h2>");
+    console.log(os.cpus());
   }
   else if(request.url == "/number_of_cores"){
-    console.log(os.cpus().length);
     response.write("<h2>Number of cores</h2>");
+    console.log(os.cpus().length);
   }
   else if(request.url == "/home.html"){
     response.writeHead(200, {'Content-Type': 'text/html'});
